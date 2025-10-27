@@ -1,0 +1,16 @@
+services:
+  bot:
+    build: .
+    container_name: autoparts_bot
+    # Подхватываем .env из директории проекта
+    env_file: .env
+    restart: always
+    # Для разработки удобно монтировать код, чтобы не пересобирать образ при изменениях
+    volumes:
+      - .:/app
+    # (Опционально) Healthcheck, если добавишь эндпоинт или периодический лог/ping
+    # healthcheck:
+    #   test: ["CMD-SHELL", "python -c 'import sys; import time; sys.exit(0)'"]
+    #   interval: 30s
+    #   timeout: 5s
+    #   retries: 3

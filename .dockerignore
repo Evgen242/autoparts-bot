@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Venv
+venv/
+.env
+
+# VCS
+.git/
+.gitignore
+
+# Editors
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
