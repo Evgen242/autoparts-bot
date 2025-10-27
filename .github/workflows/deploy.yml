@@ -1,4 +1,3 @@
-cat <<'EOF' > deploy.yml
 name: deploy
 
 on:
@@ -81,4 +80,3 @@ jobs:
             echo "❌ Container did not become healthy in time"
             docker logs autoparts_bot
             exit 1
-EOF
