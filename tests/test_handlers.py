@@ -1,6 +1,7 @@
 import pytest
 from bot import start, main_keyboard
 
+
 class DummyMessage:
     def __init__(self):
         self.sent_texts = []
@@ -11,13 +12,16 @@ class DummyMessage:
         self.reply_markup = reply_markup
         return text
 
+
 class DummyUpdate:
     def __init__(self):
         self.message = DummyMessage()
 
+
 class DummyContext:
     def __init__(self):
         self.args = []
+
 
 @pytest.mark.asyncio
 async def test_start_handler():

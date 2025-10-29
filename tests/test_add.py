@@ -2,6 +2,7 @@ import pytest
 import types
 from bot import add_part_process, main_keyboard
 
+
 # Заглушка для update.message
 class DummyMessage:
     def __init__(self, text=""):
@@ -14,25 +15,32 @@ class DummyMessage:
         self.reply_markup = reply_markup
         return text
 
+
 class DummyUpdate:
     def __init__(self, text):
         self.message = DummyMessage(text)
 
+
 class DummyContext:
     def __init__(self):
         self.args = []
+
 
 # Заглушка для db.Session
 class DummySession:
     def __init__(self):
         self.added = []
         self.committed = False
+
     def add(self, obj):
         self.added.append(obj)
+
     def commit(self):
         self.committed = True
+
     def close(self):
         pass
+
 
 @pytest.mark.asyncio
 async def test_add_part_not_enough_data(monkeypatch):
@@ -46,6 +54,7 @@ async def test_add_part_not_enough_data(monkeypatch):
 
     assert "Недостаточно данных" in update.message.sent_texts[0]
     assert result == 1  # ADD_PART state
+
 
 @pytest.mark.asyncio
 async def test_add_part_success(monkeypatch):
