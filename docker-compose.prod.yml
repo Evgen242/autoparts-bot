@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  autoparts_bot:
+    image: evgen1771/autoparts-bot:latest
+    container_name: autoparts_bot
+    restart: always
+    env_file:
+      - .env
+    working_dir: /app
+    command: python bot.py
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s

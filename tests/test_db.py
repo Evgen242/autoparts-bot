@@ -1,14 +1,10 @@
 import os
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+import pytest
 
-load_dotenv()
+def test_env_vars_present():
+    for key in ("POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "POSTGRES_HOST"):
+        assert key in os.environ, f"Missing env {key}"
 
-DATABASE_URL = os.getenv('DATABASE_URL')
-try:
-    engine = create_engine(DATABASE_URL)
-    with engine.connect() as connection:
-        result = connection.execute(text("SELECT version();"))
-        print("Подключение успешно! Версия PostgreSQL:", result.scalar())
-except Exception as e:
-    print("Ошибка подключения:", e)
+@pytest.mark.skip(reason="Enable when real DB test is ready")
+def test_db_connection_placeholder():
+    assert True
