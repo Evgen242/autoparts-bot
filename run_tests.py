@@ -9,6 +9,7 @@ def test_imports():
     try:
         import bot
         import database
+
         print("✅ Basic imports work")
         return True
     except ImportError as e:
@@ -21,16 +22,16 @@ def test_imports():
 
 def test_files_exist():
     """Test that required files exist"""
-    required = ['bot.py', 'database.py', 'requirements.txt']
+    required = ["bot.py", "database.py", "requirements.txt"]
     all_exist = True
-    
+
     for file in required:
         if os.path.exists(file):
             print(f"✅ File exists: {file}")
         else:
             print(f"❌ File missing: {file}")
             all_exist = False
-    
+
     return all_exist
 
 
@@ -49,22 +50,18 @@ def test_basic_logic():
 def main():
     """Run all tests"""
     print("🚀 Running basic validation tests...")
-    
-    tests = [
-        test_imports,
-        test_files_exist,
-        test_basic_logic
-    ]
-    
+
+    tests = [test_imports, test_files_exist, test_basic_logic]
+
     passed = 0
     total = len(tests)
-    
+
     for test in tests:
         if test():
             passed += 1
-    
+
     print(f"\n📊 Results: {passed}/{total} tests passed")
-    
+
     if passed == total:
         print("🎉 All basic tests passed!")
         sys.exit(0)

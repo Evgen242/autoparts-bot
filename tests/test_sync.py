@@ -1,4 +1,5 @@
 """Synchronous tests that don't require async"""
+
 import sys
 
 
@@ -12,6 +13,7 @@ def test_imports():
     try:
         import bot
         import database
+
         assert True
     except ImportError as e:
         # In CI, some imports might fail due to missing optional dependencies
@@ -29,7 +31,8 @@ def test_basic_logic():
 def test_file_structure():
     """Test that required files exist"""
     import os
-    required_files = ['bot.py', 'database.py', 'requirements.txt', 'Dockerfile']
+
+    required_files = ["bot.py", "database.py", "requirements.txt", "Dockerfile"]
     for file in required_files:
         assert os.path.exists(file), f"Required file {file} missing"
 
@@ -37,18 +40,20 @@ def test_file_structure():
 def test_requirements():
     """Test that requirements file exists and has content"""
     import os
-    if os.path.exists('requirements.txt'):
-        with open('requirements.txt', 'r') as f:
+
+    if os.path.exists("requirements.txt"):
+        with open("requirements.txt", "r") as f:
             content = f.read()
             assert len(content.strip()) > 0
-            assert 'python-telegram-bot' in content or 'telegram' in content
+            assert "python-telegram-bot" in content or "telegram" in content
 
 
 def test_database_model():
     """Test database model structure"""
     from database import AutoPart
-    assert hasattr(AutoPart, '__tablename__')
-    assert AutoPart.__tablename__ == 'autoparts'
-    assert hasattr(AutoPart, 'id')
-    assert hasattr(AutoPart, 'name')
-    assert hasattr(AutoPart, 'car_brand')
+
+    assert hasattr(AutoPart, "__tablename__")
+    assert AutoPart.__tablename__ == "autoparts"
+    assert hasattr(AutoPart, "id")
+    assert hasattr(AutoPart, "name")
+    assert hasattr(AutoPart, "car_brand")

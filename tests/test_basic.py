@@ -1,16 +1,19 @@
 """Basic tests that should always pass"""
+
 from database import init_db
 
 
 def test_database_module_exists():
     """Test that database module can be imported"""
     import database
+
     assert database is not None
 
 
 def test_bot_module_exists():
     """Test that bot module can be imported"""
     import bot
+
     assert bot is not None
 
 
