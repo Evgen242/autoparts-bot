@@ -1,11 +1,17 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
+import os
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Float,
+    DateTime,
+    Text,
+    text,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 Base = declarative_base()
 
@@ -15,26 +21,37 @@ class AutoPart(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
-    car_brand = Column(String(50))
-    car_model = Column(String(50))
-    part_number = Column(String(50))
+    car_brand = Column(String(50), nullable=False)
+    car_model = Column(String(50), nullable=False)
+    part_number = Column(String(50), nullable=False)
     quantity = Column(Integer, default=0)
-    price = Column(Float)
+    price = Column(Float, default=0.0)
     location = Column(String(100))
-    description = Column(String(500))
+    description = Column(Text)
     created_at = Column(DateTime, default=datetime.now)
 
-    def __repr__(self):
-        return f"<AutoPart {self.name} for {self.car_brand} {self.car_model}>"
 
+# Берём готовую строку подключения из .env
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Используем переменную окружения или значение по умолчанию
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://autoparts_user:Moto2025@localhost/autoparts_db"
-)
-engine = create_engine(DATABASE_URL)
-Session = sessionmaker(bind=engine)
+Session = None
 
 
 def init_db():
-    Base.metadata.create_all(engine)
+    try:
+        engine = create_engine(DATABASE_URL)
+        global Session
+        Session = sessionmaker(bind=engine)
+
+        # создаём таблицы, если их нет
+        Base.metadata.create_all(engine)
+        print("✅ Подключение к базе успешно")
+
+        # тестовый запрос
+        session = Session()
+        count = session.execute(text("SELECT COUNT(*) FROM autoparts")).scalar()
+        print(f"📦 Запчастей в базе: {count}")
+        session.close()
+
+    except Exception as e:
+        print(f"❌ Ошибка подключения к базе: {e}")

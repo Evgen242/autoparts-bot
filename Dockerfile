@@ -6,8 +6,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Копируем только необходимые файлы
-COPY bot.py database.py ./
+# Копируем все необходимые файлы
+COPY bot.py database.py models.py ./
 
 # Создаем пользователя для безопасности
 RUN useradd -m -u 1000 botuser && chown -R botuser:botuser /app

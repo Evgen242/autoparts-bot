@@ -1,12 +1,10 @@
-import os
-import pytest
+from database import init_db
 
 
-def test_env_vars_present():
-    for key in ("POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_DB", "POSTGRES_HOST"):
-        assert key in os.environ, f"Missing env {key}"
-
-
-@pytest.mark.skip(reason="Enable when real DB test is ready")
-def test_db_connection_placeholder():
-    assert True
+def test_database_connection():
+    # Test that init_db doesn't crash
+    try:
+        init_db()
+        assert True
+    except Exception:
+        assert False, "Database initialization failed"

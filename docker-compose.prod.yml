@@ -1,36 +1,24 @@
-version: '3.8'
-
 services:
   bot:
     image: evgen1771/autoparts-bot:latest
     container_name: autoparts_bot
     restart: unless-stopped
-    env_file:
-      - .env
+    env_file: .env
     depends_on:
-      - db
-    networks:
-      - autoparts_network
+      db:
+        condition: service_healthy
 
   db:
-    image: postgres:13
+    image: postgres:13-alpine  # Alpine версия для экономии места
     container_name: autoparts_db
     restart: unless-stopped
-    env_file:
-      - .env
+    env_file: .env
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./backups:/backups
-    networks:
-      - autoparts_network
-
-volumes:
-  postgres_data:
-
-networks:
-  autoparts_network:
-    driver: bridge
+      POSTGRES_PASSWORD: ${DB_PASS}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

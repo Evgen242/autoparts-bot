@@ -1,3 +1,4 @@
+import os
 import logging
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
@@ -9,17 +10,12 @@ from telegram.ext import (
     ConversationHandler,
 )
 import database as db
-from sqlalchemy.orm import Session
 from sqlalchemy import func
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
-TOKEN = os.getenv("BOT_TOKEN")
-
-# Настройка логирования
+# Настройка логирования - ВКЛЮЧАЕМ INFO уровень
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.WARNING
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,  # Изменено с WARNING на INFO
 )
 logger = logging.getLogger(__name__)
 
@@ -33,6 +29,7 @@ main_keyboard = ReplyKeyboardMarkup(
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.info(f"👤 User {update.effective_user.id} started the bot")
     await update.message.reply_text(
         "🚗 Добро пожаловать в бот учета автозапчастей!\n\n"
         "Команды:\n"
@@ -46,6 +43,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def add_part_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.info(f"👤 User {update.effective_user.id} started adding part")
     await update.message.reply_text(
         "Введите данные запчасти в формате:\n\n"
         "Название\n"
@@ -96,19 +94,23 @@ async def add_part_process(update: Update, context: ContextTypes.DEFAULT_TYPE):
         session = db.Session()
         session.add(part)
         session.commit()
+        part_id = part.id
         session.close()
 
+        logger.info(f"✅ Part added: {part.name} (ID: {part_id})")
         await update.message.reply_text(
             "✅ Запчасть успешно добавлена!", reply_markup=main_keyboard
         )
         return ConversationHandler.END
 
-    except ValueError:
+    except ValueError as e:
+        logger.error(f"❌ ValueError in add_part_process: {e}")
         await update.message.reply_text(
             "❌ Ошибка в формате чисел (количество или цена). Попробуйте снова:"
         )
         return ADD_PART
     except Exception as e:
+        logger.error(f"❌ Error in add_part_process: {e}")
         await update.message.reply_text(
             f"❌ Ошибка: {e}\nПопробуйте снова:", reply_markup=main_keyboard
         )
@@ -121,6 +123,7 @@ async def search_part(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     search_text = " ".join(context.args)
+    logger.info(f"🔍 User {update.effective_user.id} searching: {search_text}")
     session = db.Session()
 
     try:
@@ -136,6 +139,7 @@ async def search_part(update: Update, context: ContextTypes.DEFAULT_TYPE):
             .all()
         )
 
+        logger.info(f"🔍 Search found {len(results)} results")
         if not results:
             await update.message.reply_text("❌ Ничего не найдено")
             return
@@ -165,17 +169,23 @@ async def search_part(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def list_parts(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.info(f"👤 User {update.effective_user.id} requested parts list")
     session = db.Session()
 
     try:
         parts = session.query(db.AutoPart).all()
+        logger.info(f"📋 Found {len(parts)} parts in database")
+
         if not parts:
             await update.message.reply_text("📦 База данных пуста")
             return
 
         response = f"📋 Всего запчастей: {len(parts)}\n\n"
         for part in parts:
-            response += f"• {part.name} ({part.car_brand} {part.car_model}) - {part.quantity} шт.\n"
+            response += (
+                f"• {part.name} ({part.car_brand} {part.car_model})"
+                f" - {part.quantity} шт.\n"
+            )
 
         await update.message.reply_text(response)
 
@@ -184,6 +194,7 @@ async def list_parts(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.info(f"👤 User {update.effective_user.id} requested stats")
     session = db.Session()
 
     try:
@@ -203,6 +214,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"• Общая стоимость: {total_value:.2f} руб."
         )
 
+        logger.info(f"📊 Stats: {total_parts} parts, {total_quantity} total quantity")
         await update.message.reply_text(response)
 
     finally:
@@ -210,6 +222,7 @@ async def stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.info(f"👤 User {update.effective_user.id} cancelled operation")
     await update.message.reply_text("❌ Операция отменена", reply_markup=main_keyboard)
     return ConversationHandler.END
 
@@ -220,10 +233,12 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def main():
     # Инициализация базы данных
+    logger.info("📡 Старт бота — инициализация базы...")
     db.init_db()
+    logger.info("✅ Подключение к базе успешно")
 
     # Создаем Application
-    application = Application.builder().token(TOKEN).build()
+    application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
 
     # ConversationHandler для добавления запчасти
     conv_handler = ConversationHandler(
@@ -248,7 +263,8 @@ def main():
     application.add_error_handler(error_handler)
 
     # Запускаем бота
-    logger.info("Бот запущен!")
+    logger.info("🤖 Бот запущен и готов к работе!")
+    print("🚀 Бот запущен! Логи будут отображаться ниже...")
     application.run_polling()
 
 
