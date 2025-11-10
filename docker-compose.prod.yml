@@ -1,19 +1,36 @@
-version: "3.9"
+version: '3.8'
 
 services:
-  autoparts_bot:
+  bot:
     image: evgen1771/autoparts-bot:latest
     container_name: autoparts_bot
-    restart: always
+    restart: unless-stopped
     env_file:
       - .env
-    working_dir: /app
-    command: python bot.py
+    depends_on:
+      - db
+    networks:
+      - autoparts_network
+
+  db:
+    image: postgres:13
+    container_name: autoparts_db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - ./logs:/app/logs
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
+      - postgres_data:/var/lib/postgresql/data
+      - ./backups:/backups
+    networks:
+      - autoparts_network
+
+volumes:
+  postgres_data:
+
+networks:
+  autoparts_network:
+    driver: bridge
