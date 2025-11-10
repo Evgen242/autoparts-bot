@@ -1,21 +1,16 @@
-# Python
+.git
+.github
+Dockerfile
+docker-compose*
+README.md
+*.log
+logs/
+backups/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Venv
+.Python
+env/
 venv/
-.env
-
-# VCS
-.git/
-.gitignore
-
-# Editors
-.vscode/
-.idea/
-
-# Logs
-*.log
-logs/
+.venv/
